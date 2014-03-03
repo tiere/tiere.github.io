@@ -9,7 +9,7 @@
   <meta name="author" content="Tommi Järvinen">
 
   
-  <meta name="description" content=" Blog Archives Recent Posts ">
+  <meta name="description" content="Installing Vagrant can be installed on Ubuntu via apt-get, but the version is really old. I downloaded the .deb -file from http://www.vagrantup.com/ &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,150 @@
       <div class="blog-index">
   
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/">Vagrant for Ruby on Rails Development on Ubuntu 13.10</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-03T15:12:17+02:00" pubdate data-updated="true">Mar 3<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Installing</h2>
+
+<p>Vagrant can be installed on Ubuntu via apt-get, but the version is really old. I downloaded the .deb -file from <a href="http://www.vagrantup.com/downloads.html.">http://www.vagrantup.com/downloads.html.</a></p>
+
+<h2>Configuring</h2>
+
+<p>First create a folder for your project and go to that folder. The following command will initialize a new vagrant virtual machine and use Ubuntu Precise as the base:</p>
+
+<pre><code>$ vagrant init precise32 http://files.vagrantup.com/precise32.box
+</code></pre>
+
+<p>Vagrant will also create a Vagrantfile in the working directory. Open the file for editing and the change the following line:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># Create a forwarded port mapping which allows access to a specific port</span>
+</span><span class='line'>  <span class="c1"># within the machine from a port on the host machine. In the example below,</span>
+</span><span class='line'>  <span class="c1"># accessing &quot;localhost:8080&quot; will access port 80 on the guest machine.</span>
+</span><span class='line'>  <span class="c1"># config.vm.network :forwarded_port, guest: 80, host: 8080</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="c1"># Create a forwarded port mapping which allows access to a specific port</span>
+</span><span class='line'>  <span class="c1"># within the machine from a port on the host machine. In the example below,</span>
+</span><span class='line'>  <span class="c1"># accessing &quot;localhost:8080&quot; will access port 80 on the guest machine.</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">network</span> <span class="ss">:forwarded_port</span><span class="p">,</span> <span class="ss">guest</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span> <span class="ss">host</span><span class="p">:</span> <span class="mi">3000</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to forward the default Rails development port to the virtual machine.
+Now create two script files to the same directory with Vagrantfile. We will include all software installation in those scripts. You can name the scripts as you like, the names that I use are just examples:</p>
+
+<pre><code>$ nano installation.sh
+</code></pre>
+
+<p>I have put the following commands into the first scripts that will be run as root. Feel free to customize these commands to your liking. Node.js is included because its needed for some javascript operations:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/usr/bin/env bash</span>
+</span><span class='line'><span class="nb">echo</span> -e <span class="s2">&quot;deb mirror://mirrors.ubuntu.com/mirrors.txt precise main restricted universe multiverse\ndeb mirror://mirrors.ubuntu.com/mirrors.txt precise-updates main restricted universe multiverse\ndeb mirror://mirrors.ubuntu.com/mirrors.txt precise-backports main restricted universe multiverse\ndeb mirror://mirrors.ubuntu.com/mirrors.txt precise-security main restricted universe multiverse\n$(cat /etc/apt/sources.list)&quot;</span> &gt; /etc/sources.list
+</span><span class='line'>apt-get update
+</span><span class='line'>apt-get install -y git build-essential nodejs libsqlite3-dev
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After this create another script file to be run as normal user. The script will first install rbenv for easy switching between different Ruby versions. Then it will install a version of Ruby, in my case 2.1.0. It will then set that version of Ruby to be the global default. Finally it will install Rails and Bundler:</p>
+
+<pre><code>$ nano installation_user.sh
+</code></pre>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/usr/bin/env bash</span>
+</span><span class='line'>git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
+</span><span class='line'><span class="nb">echo</span> <span class="s1">&#39;export PATH=&quot;$HOME/.rbenv/bin:$PATH&quot;&#39;</span> &gt;&gt; ~/.bash_profile
+</span><span class='line'><span class="nb">echo</span> <span class="s1">&#39;eval &quot;$(rbenv init -)&quot;&#39;</span> &gt;&gt; ~/.bash_profile
+</span><span class='line'>git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+</span><span class='line'><span class="nb">source</span> ~/.bash_profile
+</span><span class='line'>rbenv install -v 2.1.0 <span class="c"># replace with the ruby version that you want to use</span>
+</span><span class='line'>rbenv global 2.1.0 <span class="c"># replace with the ruby version that you want to use</span>
+</span><span class='line'>gem install rails
+</span><span class='line'>gem install bundler
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After this add the following lines to Vagrantfile to include your new shell scripts:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">provision</span> <span class="ss">:shell</span><span class="p">,</span> <span class="ss">path</span><span class="p">:</span> <span class="s2">&quot;installation.sh&quot;</span>
+</span><span class='line'>  <span class="n">config</span><span class="o">.</span><span class="n">vm</span><span class="o">.</span><span class="n">provision</span> <span class="ss">:shell</span><span class="p">,</span> <span class="ss">path</span><span class="p">:</span> <span class="s2">&quot;installation_user.sh&quot;</span><span class="p">,</span> <span class="ss">privileged</span><span class="p">:</span> <span class="kp">false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>After this the configuration for your Ruby on Rails development environment should be configured and you can start the Vagrant box with the following command:</p>
+
+<pre><code>$ vagrant up
+</code></pre>
+
+<p>The startup will take some time the first time because it will install the whole system like you previously configured. After the process has finished you can ssh to your new virtual machine with the command:</p>
+
+<pre><code>$ vagrant ssh
+</code></pre>
+
+<p>The directory where you most likely will want to initialize your Rails project(s) inside the virtual machine is:</p>
+
+<pre><code>/vagrant/
+</code></pre>
+
+<p>Since it will be shared between your guest and host machine. You should now be set up to start developing your application.</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
@@ -77,6 +221,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/">Vagrant for Ruby on Rails Development on Ubuntu 13.10</a>
+      </li>
     
   </ul>
 </section>

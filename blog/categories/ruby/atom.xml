@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby | Software Development Stuff]]></title>
+  <link href="http://tiere.github.io/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://tiere.github.io/"/>
+  <updated>2014-03-03T18:58:09+02:00</updated>
+  <id>http://tiere.github.io/</id>
+  <author>
+    <name><![CDATA[Tommi Järvinen]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Vagrant for Ruby on Rails Development on Ubuntu 13.10]]></title>
+    <link href="http://tiere.github.io/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/"/>
+    <updated>2014-03-03T15:12:17+02:00</updated>
+    <id>http://tiere.github.io/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10</id>
+    <content type="html"><![CDATA[<h2>Installing</h2>
+
+<p>Vagrant can be installed on Ubuntu via apt-get, but the version is really old. I downloaded the .deb -file from <a href="http://www.vagrantup.com/downloads.html.">http://www.vagrantup.com/downloads.html.</a></p>
+
+<h2>Configuring</h2>
+
+<p>First create a folder for your project and go to that folder. The following command will initialize a new vagrant virtual machine and use Ubuntu Precise as the base:</p>
+
+<pre><code>$ vagrant init precise32 http://files.vagrantup.com/precise32.box
+</code></pre>
+
+<p>Vagrant will also create a Vagrantfile in the working directory. Open the file for editing and the change the following line:</p>
+
+<p><code>ruby
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # config.vm.network :forwarded_port, guest: 80, host: 8080
+</code></p>
+
+<p>to</p>
+
+<p><code>ruby
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  config.vm.network :forwarded_port, guest: 3000, host: 3000
+</code></p>
+
+<p>to forward the default Rails development port to the virtual machine.
+Now create two script files to the same directory with Vagrantfile. We will include all software installation in those scripts. You can name the scripts as you like, the names that I use are just examples:</p>
+
+<pre><code>$ nano installation.sh
+</code></pre>
+
+<p>I have put the following commands into the first scripts that will be run as root. Feel free to customize these commands to your liking. Node.js is included because its needed for some javascript operations:</p>
+
+<p>``` bash</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>echo -e &ldquo;deb mirror://mirrors.ubuntu.com/mirrors.txt precise main restricted universe multiverse\ndeb mirror://mirrors.ubuntu.com/mirrors.txt precise-updates main restricted universe multiverse\ndeb mirror://mirrors.ubuntu.com/mirrors.txt precise-backports main restricted universe multiverse\ndeb mirror://mirrors.ubuntu.com/mirrors.txt precise-security main restricted universe multiverse\n$(cat /etc/apt/sources.list)&rdquo; > /etc/sources.list
+apt-get update
+apt-get install -y git build-essential nodejs libsqlite3-dev
+```</p>
+
+<p>After this create another script file to be run as normal user. The script will first install rbenv for easy switching between different Ruby versions. Then it will install a version of Ruby, in my case 2.1.0. It will then set that version of Ruby to be the global default. Finally it will install Rails and Bundler:</p>
+
+<pre><code>$ nano installation_user.sh
+</code></pre>
+
+<p>``` bash</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>git clone <a href="https://github.com/sstephenson/rbenv.git">https://github.com/sstephenson/rbenv.git</a> ~/.rbenv
+echo &lsquo;export PATH=&ldquo;$HOME/.rbenv/bin:$PATH&rdquo;&rsquo; >> ~/.bash_profile
+echo &lsquo;eval &ldquo;$(rbenv init &ndash;)&rdquo;&rsquo; >> ~/.bash_profile
+git clone <a href="https://github.com/sstephenson/ruby-build.git">https://github.com/sstephenson/ruby-build.git</a> ~/.rbenv/plugins/ruby-build
+source ~/.bash_profile
+rbenv install -v 2.1.0 # replace with the ruby version that you want to use
+rbenv global 2.1.0 # replace with the ruby version that you want to use
+gem install rails
+gem install bundler
+```</p>
+
+<p>After this add the following lines to Vagrantfile to include your new shell scripts:</p>
+
+<p><code>ruby
+  config.vm.provision :shell, path: "installation.sh"
+  config.vm.provision :shell, path: "installation_user.sh", privileged: false
+</code></p>
+
+<p>After this the configuration for your Ruby on Rails development environment should be configured and you can start the Vagrant box with the following command:</p>
+
+<pre><code>$ vagrant up
+</code></pre>
+
+<p>The startup will take some time the first time because it will install the whole system like you previously configured. After the process has finished you can ssh to your new virtual machine with the command:</p>
+
+<pre><code>$ vagrant ssh
+</code></pre>
+
+<p>The directory where you most likely will want to initialize your Rails project(s) inside the virtual machine is:</p>
+
+<pre><code>/vagrant/
+</code></pre>
+
+<p>Since it will be shared between your guest and host machine. You should now be set up to start developing your application.</p>
+]]></content>
+  </entry>
+  
+</feed>
