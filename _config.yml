@@ -2,7 +2,7 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://tiere.github.io
+url: http://blog.tommijarvinen.com/
 title: Software Development Stuff
 subtitle: Postings of a software developer
 author: Tommi Järvinen
@@ -63,7 +63,7 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/delicious.
 # ----------------------- #
 
 # Github repositories
-github_user:
+github_user: tiere
 github_repo_count: 0
 github_show_profile_link: true
 github_skip_forks: true
@@ -90,7 +90,7 @@ delicious_user:
 delicious_count: 3
 
 # Disqus Comments
-disqus_short_name:
+disqus_short_name: softwaredevelopmentstuff
 disqus_show_comment_count: false
 
 # Google Analytics
