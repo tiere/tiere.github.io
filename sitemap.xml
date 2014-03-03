@@ -2,20 +2,20 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>
-            http://tiere.github.io/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/
+            http://blog.tommijarvinen.com//blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/
         </loc>
         <lastmod>2014-03-03T18:53:50+02:00</lastmod>
     </url>
     <url>
-        <loc>http://tiere.github.io/</loc>
+        <loc>http://blog.tommijarvinen.com//</loc>
         <lastmod>2014-03-03T18:53:50+02:00</lastmod>
     </url>
     <url>
-        <loc>http://tiere.github.io/robots.txt</loc>
+        <loc>http://blog.tommijarvinen.com//robots.txt</loc>
         <lastmod>2014-03-03T14:11:45+02:00</lastmod>
     </url>
     <url>
-        <loc>http://tiere.github.io/blog/archives/</loc>
+        <loc>http://blog.tommijarvinen.com//blog/archives/</loc>
         <lastmod>2014-03-03T18:53:50+02:00</lastmod>
     </url>
 </urlset>

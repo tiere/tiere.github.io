@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://tiere.github.io/sitemap.xml 
+Sitemap: http://blog.tommijarvinen.com//sitemap.xml 
