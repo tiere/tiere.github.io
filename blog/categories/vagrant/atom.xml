@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Vagrant | Software Development Stuff]]></title>
-  <link href="http://tiere.github.io/blog/categories/vagrant/atom.xml" rel="self"/>
-  <link href="http://tiere.github.io/"/>
-  <updated>2014-03-03T19:30:52+02:00</updated>
-  <id>http://tiere.github.io/</id>
+  <link href="http://blog.tommijarvinen.com/blog/categories/vagrant/atom.xml" rel="self"/>
+  <link href="http://blog.tommijarvinen.com/"/>
+  <updated>2014-03-04T09:16:29+02:00</updated>
+  <id>http://blog.tommijarvinen.com/</id>
   <author>
     <name><![CDATA[Tommi Järvinen]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Vagrant for Ruby on Rails Development on Ubuntu 13.10]]></title>
-    <link href="http://tiere.github.io/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/"/>
+    <link href="http://blog.tommijarvinen.com/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/"/>
     <updated>2014-03-03T15:12:17+02:00</updated>
-    <id>http://tiere.github.io/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10</id>
+    <id>http://blog.tommijarvinen.com/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10</id>
     <content type="html"><![CDATA[<h2>Installing</h2>
 
 <p>Vagrant can be installed on Ubuntu via apt-get, but the version is really old. I downloaded the .deb -file from <a href="http://www.vagrantup.com/downloads.html.">http://www.vagrantup.com/downloads.html.</a></p>
