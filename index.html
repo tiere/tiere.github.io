@@ -9,7 +9,7 @@
   <meta name="author" content="Tommi Järvinen">
 
   
-  <meta name="description" content="Installing Vagrant can be installed on Ubuntu via apt-get, but the version is really old. I downloaded the .deb -file from http://www.vagrantup.com/ &hellip;">
+  <meta name="description" content="Introduction Instructions for setting up Ubuntu 12.04.4 LTS to host a Ruby on Rails Application with nginx as the web server, Phusion Passenger as &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,317 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/07/rails-server-with-nginx-passenger-and-postgresql/">Ruby on Rails Server With Nginx, Phusion Passenger and PostgreSQL</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-07T16:36:02+02:00" pubdate data-updated="true">Mar 7<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Introduction</h2>
+
+<p>Instructions for setting up Ubuntu 12.04.4 LTS to host a Ruby on Rails Application with nginx as the web server, Phusion Passenger as the application server and PostgreSQL as the database. This has been tested on a clean installation of Ubuntu 12.04.4, but should work on existing installation and different versions with little changes as well. This is one of my first blog posts so take that into account when giving feedback.</p>
+
+<h2>Installation</h2>
+
+<p>Write the following inside a script file and run it (Or run the commands one by one). It will add the Phusion Passenger repositories to apt sources, install it, install rbenv, ruby and bundler, stuff required to compile Ruby, PostgreSQL and nginx. Feel free to customize the script to your needs. If you prefer RVM to rbenv just change the corresponding lines etc.:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c">#!/usr/bin/env bash</span>
+</span><span class='line'>sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 561F9B9CAC40B2F7
+</span><span class='line'><span class="nb">echo</span> <span class="s2">&quot;deb https://oss-binaries.phusionpassenger.com/apt/passenger precise main&quot;</span> | sudo tee -a /etc/apt/sources.list.d/passenger.list
+</span><span class='line'>sudo apt-get update
+</span><span class='line'>sudo apt-get install -y apt-transport-https ca-certificates
+</span><span class='line'>sudo apt-get install -y git build-essential nodejs postgresql postgresql-server-dev-9.1 libssl-dev nginx-extras passenger libcurl4-openssl-dev
+</span><span class='line'>git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
+</span><span class='line'><span class="nb">echo</span> <span class="s1">&#39;export PATH=&quot;$HOME/.rbenv/bin:$PATH&quot;&#39;</span> &gt;&gt; ~/.bash_profile
+</span><span class='line'><span class="nb">echo</span> <span class="s1">&#39;eval &quot;$(rbenv init -)&quot;&#39;</span> &gt;&gt; ~/.bash_profile
+</span><span class='line'>git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+</span><span class='line'><span class="nb">source</span> ~/.bash_profile
+</span><span class='line'>rbenv install -v 2.1.1 <span class="c"># replace with the ruby version that you want to use</span>
+</span><span class='line'>rbenv global 2.1.1 <span class="c"># replace with the ruby version that you want to use</span>
+</span><span class='line'>gem install -V bundler
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Configuration</h2>
+
+<p>Change the following lines in /etc/nginx/nginx.conf:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Phusion Passenger config</span>
+</span><span class='line'><span class="c">##</span>
+</span><span class='line'><span class="c"># Uncomment it if you installed passenger or passenger-enterprise</span>
+</span><span class='line'><span class="c">##</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;</span>
+</span><span class='line'><span class="c"># passenger_ruby /usr/bin/ruby;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c">##</span>
+</span><span class='line'><span class="c"># Virtual Host Configs</span>
+</span><span class='line'><span class="c">##</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Phusion Passenger config</span>
+</span><span class='line'><span class="c">##</span>
+</span><span class='line'><span class="c"># Uncomment it if you installed passenger or passenger-enterprise</span>
+</span><span class='line'><span class="c">##</span>
+</span><span class='line'>
+</span><span class='line'>passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
+</span><span class='line'>passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
+</span><span class='line'>
+</span><span class='line'><span class="c">##</span>
+</span><span class='line'><span class="c"># Virtual Host Configs</span>
+</span><span class='line'><span class="c">##</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>(Default ruby installation directory is ~/.rbenv/versions/RUBY_VERSION)</p>
+
+<p>Generate a ssh keypair and add your public key to where you deploy from (If you need to and use git with ssh). Otherwise just do whatever you need to get your application to the server. Guide to ssh key generation can be found at <a href="https://help.github.com/articles/generating-ssh-keys" title="https://help.github.com/articles/generating-ssh-keys" target="_blank"><a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a></a></p>
+
+<p>Clone your repo to a directory of your choosing (If you use git):</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>git clone YOUR-GIT-REPO-ADDRESS
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Add an user to postgresql with the name and password you specified in the production database config in your database.yml:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>sudo -u postgres psql
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>create user YOUR-USERNAME  with password <span class="s1">&#39;YOUR PASSWORD&#39;</span>;
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>alter role YOUR-USERNAME createdb;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To exit psql prompt, type:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="se">\q</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Change the local authentication line in /etc/postgresql/9.1/main/pg_hba.conf:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># &quot;local&quot; is for Unix domain socket connections only</span>
+</span><span class='line'><span class="nb">local   </span>all             all                                     peer
+</span><span class='line'><span class="c"># IPv4 local connections:</span>
+</span><span class='line'>host    all             all             127.0.0.1/32            md5
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># &quot;local&quot; is for Unix domain socket connections only</span>
+</span><span class='line'><span class="nb">local   </span>all             all                                     md5
+</span><span class='line'><span class="c"># IPv4 local connections:</span>
+</span><span class='line'>host    all             all             127.0.0.1/32            md5
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>to allow password authentication to postgresql</p>
+
+<p>And then restart postgresql:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>sudo service postgresql restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Rehash rbenv to get access to new commands of the gems that were installed:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv rehash
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Go to your rails application root and run bundle install:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>bundle install --without development <span class="nb">test</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Make sure your secret token is specified in your application&rsquo;s config/application.yml if you&rsquo;re using the <a href="https://github.com/laserlemon/figaro" title="https://github.com/laserlemon/figaro" target="_blank">figaro</a> gem. If not, you can generate a new one with the following command in your rails apps&rsquo;s root:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rake secret
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then just add that to RAILS_APPLICATION_ROOT/config/application.yml:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>SECRET_TOKEN: YOUR_TOKEN_HERE;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>server <span class="o">{</span>
+</span><span class='line'>        listen 80;
+</span><span class='line'>        server_name YOUR_DOMAIN_HERE;
+</span><span class='line'>        root /PATH_TO_YOUR_RAILS_APP/public;
+</span><span class='line'>        passenger_enabled on;
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c"># Comment this out if you are using SSL</span>
+</span><span class='line'><span class="c"># server {</span>
+</span><span class='line'>        <span class="c"># listen 443 ssl;</span>
+</span><span class='line'>        <span class="c"># server_name YOUR_DOMAIN_HERE;</span>
+</span><span class='line'>        <span class="c"># passenger_enabled on;</span>
+</span><span class='line'>        <span class="c"># root /PATH_TO_YOUR_RAILS_APP/public;</span>
+</span><span class='line'>        <span class="c"># ssl_certificate /etc/nginx/ssl/server.crt; # Replace with the path to your certificate</span>
+</span><span class='line'>        <span class="c"># ssl_certificate_key /etc/nginx/ssl/server.key; # Replace with the path to your key</span>
+</span><span class='line'><span class="c"># }</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then modify /etc/nginx/nginx.conf to only include that site configuration:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>    <span class="c">##</span>
+</span><span class='line'>    <span class="c"># Virtual Host Configs</span>
+</span><span class='line'>    <span class="c">##</span>
+</span><span class='line'>
+</span><span class='line'>    include /etc/nginx/conf.d/*.conf;
+</span><span class='line'>    include /etc/nginx/sites-enabled/THE_FILE_YOU_CREATED;
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Go to your rails application root and run the following commands:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ RAILS_ENV</span><span class="o">=</span>production rake db:setup assets:precompile
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then restart nginx:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>sudo service nginx restart
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Your application should now be served properly by nginx on port 80 :) If you run into problems, check the logs at /var/log/nginx to see whether they help identify the problem.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -221,6 +532,10 @@ Now create two script files to the same directory with Vagrantfile. We will incl
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/07/rails-server-with-nginx-passenger-and-postgresql/">Ruby on Rails Server With Nginx, Phusion Passenger and PostgreSQL</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/03/03/vagrant-for-ruby-on-rails-development-on-ubuntu-13-dot-10/">Vagrant for Ruby on Rails Development on Ubuntu 13.10</a>

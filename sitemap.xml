@@ -7,8 +7,14 @@
         <lastmod>2014-03-06T00:16:46+02:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://blog.tommijarvinen.com/blog/2014/03/07/rails-server-with-nginx-passenger-and-postgresql/
+        </loc>
+        <lastmod>2014-03-07T17:16:25+02:00</lastmod>
+    </url>
+    <url>
         <loc>http://blog.tommijarvinen.com/</loc>
-        <lastmod>2014-03-06T00:16:46+02:00</lastmod>
+        <lastmod>2014-03-07T17:16:25+02:00</lastmod>
     </url>
     <url>
         <loc>http://blog.tommijarvinen.com/robots.txt</loc>
@@ -16,6 +22,6 @@
     </url>
     <url>
         <loc>http://blog.tommijarvinen.com/blog/archives/</loc>
-        <lastmod>2014-03-06T00:16:46+02:00</lastmod>
+        <lastmod>2014-03-07T17:16:25+02:00</lastmod>
     </url>
 </urlset>
