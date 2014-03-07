@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | Software Development Stuff]]></title>
   <link href="http://blog.tommijarvinen.com/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://blog.tommijarvinen.com/"/>
-  <updated>2014-03-07T17:17:16+02:00</updated>
+  <updated>2014-03-07T17:20:13+02:00</updated>
   <id>http://blog.tommijarvinen.com/</id>
   <author>
     <name><![CDATA[Tommi Järvinen]]></name>
@@ -12,6 +12,250 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Ruby on Rails Server With Nginx, Phusion Passenger and PostgreSQL]]></title>
+    <link href="http://blog.tommijarvinen.com/blog/2014/03/07/rails-server-with-nginx-passenger-and-postgresql/"/>
+    <updated>2014-03-07T16:36:02+02:00</updated>
+    <id>http://blog.tommijarvinen.com/blog/2014/03/07/rails-server-with-nginx-passenger-and-postgresql</id>
+    <content type="html"><![CDATA[<h2>Introduction</h2>
+
+<p>Instructions for setting up Ubuntu 12.04.4 LTS to host a Ruby on Rails Application with nginx as the web server, Phusion Passenger as the application server and PostgreSQL as the database. This has been tested on a clean installation of Ubuntu 12.04.4, but should work on existing installation and different versions with little changes as well. This is one of my first blog posts so take that into account when giving feedback.</p>
+
+<h2>Installation</h2>
+
+<p>Write the following inside a script file and run it (Or run the commands one by one). It will add the Phusion Passenger repositories to apt sources, install it, install rbenv, ruby and bundler, stuff required to compile Ruby, PostgreSQL and nginx. Feel free to customize the script to your needs. If you prefer RVM to rbenv just change the corresponding lines etc.:</p>
+
+<p>``` bash</p>
+
+<h1>!/usr/bin/env bash</h1>
+
+<p>sudo apt-key adv &mdash;keyserver keyserver.ubuntu.com &mdash;recv-keys 561F9B9CAC40B2F7
+echo &ldquo;deb <a href="https://oss-binaries.phusionpassenger.com/apt/passenger">https://oss-binaries.phusionpassenger.com/apt/passenger</a> precise main&rdquo; | sudo tee -a /etc/apt/sources.list.d/passenger.list
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates
+sudo apt-get install -y git build-essential nodejs postgresql postgresql-server-dev-9.1 libssl-dev nginx-extras passenger libcurl4-openssl-dev
+git clone <a href="https://github.com/sstephenson/rbenv.git">https://github.com/sstephenson/rbenv.git</a> ~/.rbenv
+echo &lsquo;export PATH=&ldquo;$HOME/.rbenv/bin:$PATH&rdquo;&rsquo; >> ~/.bash_profile
+echo &lsquo;eval &ldquo;$(rbenv init &ndash;)&rdquo;&rsquo; >> ~/.bash_profile
+git clone <a href="https://github.com/sstephenson/ruby-build.git">https://github.com/sstephenson/ruby-build.git</a> ~/.rbenv/plugins/ruby-build
+source ~/.bash_profile
+rbenv install -v 2.1.1 # replace with the ruby version that you want to use
+rbenv global 2.1.1 # replace with the ruby version that you want to use
+gem install -V bundler
+```</p>
+
+<h2>Configuration</h2>
+
+<p>Change the following lines in /etc/nginx/nginx.conf:</p>
+
+<p>```</p>
+
+<pre><code># Phusion Passenger config
+##
+# Uncomment it if you installed passenger or passenger-enterprise
+##
+
+# passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
+# passenger_ruby /usr/bin/ruby;
+
+##
+# Virtual Host Configs
+##
+</code></pre>
+
+<p>```</p>
+
+<p>to:</p>
+
+<p>```</p>
+
+<pre><code># Phusion Passenger config
+##
+# Uncomment it if you installed passenger or passenger-enterprise
+##
+
+passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
+passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
+
+##
+# Virtual Host Configs
+##
+</code></pre>
+
+<p>```
+(Default ruby installation directory is ~/.rbenv/versions/RUBY_VERSION)</p>
+
+<p>Generate a ssh keypair and add your public key to where you deploy from (If you need to and use git with ssh). Otherwise just do whatever you need to get your application to the server. Guide to ssh key generation can be found at <a href="https://help.github.com/articles/generating-ssh-keys" title="https://help.github.com/articles/generating-ssh-keys" target="_blank"><a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a></a></p>
+
+<p>Clone your repo to a directory of your choosing (If you use git):</p>
+
+<p>```</p>
+
+<pre><code>$ git clone YOUR-GIT-REPO-ADDRESS
+</code></pre>
+
+<p>```</p>
+
+<p>Add an user to postgresql with the name and password you specified in the production database config in your database.yml:</p>
+
+<p>```</p>
+
+<pre><code>$ sudo -u postgres psql
+</code></pre>
+
+<p>```</p>
+
+<p>```</p>
+
+<pre><code>create user YOUR-USERNAME  with password 'YOUR PASSWORD';
+</code></pre>
+
+<p>```</p>
+
+<p>```</p>
+
+<pre><code>alter role YOUR-USERNAME createdb;
+</code></pre>
+
+<p>```</p>
+
+<p>To exit psql prompt, type:</p>
+
+<p>```</p>
+
+<pre><code>\q
+</code></pre>
+
+<p>```</p>
+
+<p>Change the local authentication line in /etc/postgresql/9.1/main/pg_hba.conf:</p>
+
+<p>```</p>
+
+<h1>TYPE  DATABASE        USER            ADDRESS                 METHOD</h1>
+
+<h1>&ldquo;local&rdquo; is for Unix domain socket connections only</h1>
+
+<p>local   all             all                                     peer</p>
+
+<h1>IPv4 local connections:</h1>
+
+<p>host    all             all             127.0.0.1/32            md5
+```</p>
+
+<p>to:</p>
+
+<p>```</p>
+
+<h1>TYPE  DATABASE        USER            ADDRESS                 METHOD</h1>
+
+<h1>&ldquo;local&rdquo; is for Unix domain socket connections only</h1>
+
+<p>local   all             all                                     md5</p>
+
+<h1>IPv4 local connections:</h1>
+
+<p>host    all             all             127.0.0.1/32            md5
+```</p>
+
+<p>to allow password authentication to postgresql</p>
+
+<p>And then restart postgresql:
+```</p>
+
+<pre><code>$ sudo service postgresql restart
+</code></pre>
+
+<p>```</p>
+
+<p>Rehash rbenv to get access to new commands of the gems that were installed:
+```</p>
+
+<pre><code>$ rbenv rehash
+</code></pre>
+
+<p><code>
+Go to your rails application root and run bundle install:
+</code></p>
+
+<pre><code>$ bundle install --without development test
+</code></pre>
+
+<p><code>
+Make sure your secret token is specified in your application's config/application.yml if you're using the &lt;a href="https://github.com/laserlemon/figaro" title="https://github.com/laserlemon/figaro" target="_blank"&gt;figaro&lt;/a&gt; gem. If not, you can generate a new one with the following command in your rails apps's root:
+</code></p>
+
+<pre><code>$ rake secret
+</code></pre>
+
+<p>```
+Then just add that to RAILS_APPLICATION_ROOT/config/application.yml:</p>
+
+<p><code>
+SECRET_TOKEN: YOUR_TOKEN_HERE;
+</code></p>
+
+<p>Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents:</p>
+
+<p>```
+server {</p>
+
+<pre><code>    listen 80;
+    server_name YOUR_DOMAIN_HERE;
+    root /PATH_TO_YOUR_RAILS_APP/public;
+    passenger_enabled on;
+</code></pre>
+
+<p>}</p>
+
+<h1>Comment this out if you are using SSL</h1>
+
+<h1>server {</h1>
+
+<pre><code>    # listen 443 ssl;
+    # server_name YOUR_DOMAIN_HERE;
+    # passenger_enabled on;
+    # root /PATH_TO_YOUR_RAILS_APP/public;
+    # ssl_certificate /etc/nginx/ssl/server.crt; # Replace with the path to your certificate
+    # ssl_certificate_key /etc/nginx/ssl/server.key; # Replace with the path to your key
+</code></pre>
+
+<h1>}</h1>
+
+<p>```</p>
+
+<p>Then modify /etc/nginx/nginx.conf to only include that site configuration:</p>
+
+<p>```</p>
+
+<pre><code>    ##
+    # Virtual Host Configs
+    ##
+
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/THE_FILE_YOU_CREATED;
+</code></pre>
+
+<p>}
+<code>
+Go to your rails application root and run the following commands:
+</code></p>
+
+<pre><code>$ RAILS_ENV=production rake db:setup assets:precompile
+</code></pre>
+
+<p><code>
+Then restart nginx:
+</code></p>
+
+<pre><code>$ sudo service nginx restart
+</code></pre>
+
+<p>```
+Your application should now be served properly by nginx on port 80 :) If you run into problems, check the logs at /var/log/nginx to see whether they help identify the problem.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Vagrant for Ruby on Rails Development on Ubuntu 13.10]]></title>
