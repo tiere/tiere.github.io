@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Ruby | Software Development Stuff]]></title>
   <link href="http://blog.tommijarvinen.com/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://blog.tommijarvinen.com/"/>
-  <updated>2014-03-07T17:20:13+02:00</updated>
+  <updated>2014-03-10T20:18:03+02:00</updated>
   <id>http://blog.tommijarvinen.com/</id>
   <author>
     <name><![CDATA[Tommi Järvinen]]></name>
@@ -76,7 +76,10 @@ gem install -V bundler
 ##
 
 passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
-passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
+passenger_ruby /&lt;path/to/where/you/installed/ruby&gt;/bin/ruby;
+
+#Add the following line if you don't want passenger to display friendly debug information when your application fails to start:
+passenger_friendly_error_pages off;
 
 ##
 # Virtual Host Configs
@@ -84,7 +87,7 @@ passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
 </code></pre>
 
 <p>```
-(Default ruby installation directory is ~/.rbenv/versions/RUBY_VERSION)</p>
+(Default ruby installation directory is /home/&lt;username>/.rbenv/versions/&lt;ruby-version>)</p>
 
 <p>Generate a ssh keypair and add your public key to where you deploy from (If you need to and use git with ssh). Otherwise just do whatever you need to get your application to the server. Guide to ssh key generation can be found at <a href="https://help.github.com/articles/generating-ssh-keys" title="https://help.github.com/articles/generating-ssh-keys" target="_blank"><a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a></a></p>
 
@@ -92,7 +95,7 @@ passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
 
 <p>```</p>
 
-<pre><code>$ git clone YOUR-GIT-REPO-ADDRESS
+<pre><code>$ git clone &lt;your-git-repo-address&gt;
 </code></pre>
 
 <p>```</p>
@@ -108,14 +111,14 @@ passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
 
 <p>```</p>
 
-<pre><code>create user YOUR-USERNAME  with password 'YOUR PASSWORD';
+<pre><code>create user &lt;username&gt;  with password '&lt;password&gt;';
 </code></pre>
 
 <p>```</p>
 
 <p>```</p>
 
-<pre><code>alter role YOUR-USERNAME createdb;
+<pre><code>alter role &lt;username&gt; createdb;
 </code></pre>
 
 <p>```</p>
@@ -169,10 +172,10 @@ passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
 
 <p>```</p>
 
-<p>Rehash rbenv to get access to new commands of the gems that were installed:
+<p>source ~/.bash_profile to get access to rbenv and new commands of the gems that were installed:
 ```</p>
 
-<pre><code>$ rbenv rehash
+<pre><code>$ source ~/.bash_profile
 </code></pre>
 
 <p><code>
@@ -190,20 +193,22 @@ Make sure your secret token is specified in your application's config/applicatio
 </code></pre>
 
 <p>```
-Then just add that to RAILS_APPLICATION_ROOT/config/application.yml:</p>
+Then just add that to &lt;your/rails/application/root>/config/application.yml:</p>
 
 <p><code>
-SECRET_TOKEN: YOUR_TOKEN_HERE;
+SECRET_TOKEN: &lt;generated-token-here&gt;
 </code></p>
 
-<p>Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents:</p>
+<p>If you are using ssl, now is the time to import your certificates or generate them. The following configurations assume they are stored in /etc/nginx/ssl/</p>
+
+<p>Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents Replace leading whitespaces with tabs if nginx complains about them:</p>
 
 <p>```
 server {</p>
 
 <pre><code>    listen 80;
-    server_name YOUR_DOMAIN_HERE;
-    root /PATH_TO_YOUR_RAILS_APP/public;
+    server_name &lt;your-domain-here&gt;;
+    root &lt;your/rails/application/root&gt;/public;
     passenger_enabled on;
 </code></pre>
 
@@ -214,9 +219,9 @@ server {</p>
 <h1>server {</h1>
 
 <pre><code>    # listen 443 ssl;
-    # server_name YOUR_DOMAIN_HERE;
+    # server_name &lt;your-domain-here&gt;;
     # passenger_enabled on;
-    # root /PATH_TO_YOUR_RAILS_APP/public;
+    # root &lt;your/rails/application/root&gt;/public;
     # ssl_certificate /etc/nginx/ssl/server.crt; # Replace with the path to your certificate
     # ssl_certificate_key /etc/nginx/ssl/server.key; # Replace with the path to your key
 </code></pre>
@@ -234,7 +239,7 @@ server {</p>
     ##
 
     include /etc/nginx/conf.d/*.conf;
-    include /etc/nginx/sites-enabled/THE_FILE_YOU_CREATED;
+    include /etc/nginx/sites-enabled/&lt;the-server-conf-file-you-created&gt;;
 </code></pre>
 
 <p>}

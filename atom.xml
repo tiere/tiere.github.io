@@ -4,7 +4,7 @@
   <title><![CDATA[Software Development Stuff]]></title>
   <link href="http://blog.tommijarvinen.com/atom.xml" rel="self"/>
   <link href="http://blog.tommijarvinen.com/"/>
-  <updated>2014-03-07T17:20:13+02:00</updated>
+  <updated>2014-03-10T20:18:03+02:00</updated>
   <id>http://blog.tommijarvinen.com/</id>
   <author>
     <name><![CDATA[Tommi Järvinen]]></name>
@@ -99,13 +99,19 @@
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Phusion Passenger config</span>
 </span><span class='line'><span class="c">##</span>
 </span><span class='line'><span class="c"># Uncomment it if you installed passenger or passenger-enterprise</span>
 </span><span class='line'><span class="c">##</span>
 </span><span class='line'>
 </span><span class='line'>passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
-</span><span class='line'>passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
+</span><span class='line'>passenger_ruby /&lt;path/to/where/you/installed/ruby&gt;/bin/ruby;
+</span><span class='line'>
+</span><span class='line'><span class="c">#Add the following line if you don&#39;t want passenger to display friendly debug information when your application fails to start:</span>
+</span><span class='line'>passenger_friendly_error_pages off;
 </span><span class='line'>
 </span><span class='line'><span class="c">##</span>
 </span><span class='line'><span class="c"># Virtual Host Configs</span>
@@ -113,14 +119,14 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>(Default ruby installation directory is ~/.rbenv/versions/RUBY_VERSION)</p>
+<p>(Default ruby installation directory is /home/&lt;username>/.rbenv/versions/&lt;ruby-version>)</p>
 
 <p>Generate a ssh keypair and add your public key to where you deploy from (If you need to and use git with ssh). Otherwise just do whatever you need to get your application to the server. Guide to ssh key generation can be found at <a href="https://help.github.com/articles/generating-ssh-keys" title="https://help.github.com/articles/generating-ssh-keys" target="_blank"><a href="https://help.github.com/articles/generating-ssh-keys">https://help.github.com/articles/generating-ssh-keys</a></a></p>
 
 <p>Clone your repo to a directory of your choosing (If you use git):</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>git clone YOUR-GIT-REPO-ADDRESS
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>git clone &lt;your-git-repo-address&gt;
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -134,14 +140,14 @@
 
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>create user YOUR-USERNAME  with password <span class="s1">&#39;YOUR PASSWORD&#39;</span>;
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>create user &lt;username&gt;  with password <span class="s1">&#39;&lt;password&gt;&#39;</span>;
 </span></code></pre></td></tr></table></div></figure>
 
 
 
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>alter role YOUR-USERNAME createdb;
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>alter role &lt;username&gt; createdb;
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -195,10 +201,10 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Rehash rbenv to get access to new commands of the gems that were installed:</p>
+<p>source ~/.bash_profile to get access to rbenv and new commands of the gems that were installed:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span>rbenv rehash
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="nv">$ </span><span class="nb">source</span> ~/.bash_profile
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -216,14 +222,16 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Then just add that to RAILS_APPLICATION_ROOT/config/application.yml:</p>
+<p>Then just add that to &lt;your/rails/application/root>/config/application.yml:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>SECRET_TOKEN: YOUR_TOKEN_HERE;
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>SECRET_TOKEN: &lt;generated-token-here&gt;
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents:</p>
+<p>If you are using ssl, now is the time to import your certificates or generate them. The following configurations assume they are stored in /etc/nginx/ssl/</p>
+
+<p>Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents Replace leading whitespaces with tabs if nginx complains about them:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -243,17 +251,17 @@
 <span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='bash'><span class='line'>server <span class="o">{</span>
 </span><span class='line'>        listen 80;
-</span><span class='line'>        server_name YOUR_DOMAIN_HERE;
-</span><span class='line'>        root /PATH_TO_YOUR_RAILS_APP/public;
+</span><span class='line'>        server_name &lt;your-domain-here&gt;;
+</span><span class='line'>        root &lt;your/rails/application/root&gt;/public;
 </span><span class='line'>        passenger_enabled on;
 </span><span class='line'><span class="o">}</span>
 </span><span class='line'>
 </span><span class='line'><span class="c"># Comment this out if you are using SSL</span>
 </span><span class='line'><span class="c"># server {</span>
 </span><span class='line'>        <span class="c"># listen 443 ssl;</span>
-</span><span class='line'>        <span class="c"># server_name YOUR_DOMAIN_HERE;</span>
+</span><span class='line'>        <span class="c"># server_name &lt;your-domain-here&gt;;</span>
 </span><span class='line'>        <span class="c"># passenger_enabled on;</span>
-</span><span class='line'>        <span class="c"># root /PATH_TO_YOUR_RAILS_APP/public;</span>
+</span><span class='line'>        <span class="c"># root &lt;your/rails/application/root&gt;/public;</span>
 </span><span class='line'>        <span class="c"># ssl_certificate /etc/nginx/ssl/server.crt; # Replace with the path to your certificate</span>
 </span><span class='line'>        <span class="c"># ssl_certificate_key /etc/nginx/ssl/server.key; # Replace with the path to your key</span>
 </span><span class='line'><span class="c"># }</span>
@@ -274,7 +282,7 @@
 </span><span class='line'>    <span class="c">##</span>
 </span><span class='line'>
 </span><span class='line'>    include /etc/nginx/conf.d/*.conf;
-</span><span class='line'>    include /etc/nginx/sites-enabled/THE_FILE_YOU_CREATED;
+</span><span class='line'>    include /etc/nginx/sites-enabled/&lt;the-server-conf-file-you-created&gt;;
 </span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
