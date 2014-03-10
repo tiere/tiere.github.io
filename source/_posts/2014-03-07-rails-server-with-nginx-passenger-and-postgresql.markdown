@@ -58,20 +58,23 @@ to:
     ##
 
     passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
-    passenger_ruby /PATH_WHERE_YOU_INSTALLED_RUBY/bin/ruby;
+    passenger_ruby /<path/to/where/you/installed/ruby>/bin/ruby;
+
+    #Add the following line if you don't want passenger to display friendly debug information when your application fails to start:
+    passenger_friendly_error_pages off;
 
     ##
     # Virtual Host Configs
     ##
 ```
-(Default ruby installation directory is ~/.rbenv/versions/RUBY_VERSION)
+(Default ruby installation directory is /home/\<username\>/.rbenv/versions/<ruby-version>)
 
 Generate a ssh keypair and add your public key to where you deploy from (If you need to and use git with ssh). Otherwise just do whatever you need to get your application to the server. Guide to ssh key generation can be found at <a href="https://help.github.com/articles/generating-ssh-keys" title="https://help.github.com/articles/generating-ssh-keys" target="_blank">https://help.github.com/articles/generating-ssh-keys</a>
 
 Clone your repo to a directory of your choosing (If you use git):
 
 ```
-    $ git clone YOUR-GIT-REPO-ADDRESS
+    $ git clone <your-git-repo-address>
 ```
 
 Add an user to postgresql with the name and password you specified in the production database config in your database.yml:
@@ -81,11 +84,11 @@ Add an user to postgresql with the name and password you specified in the produc
 ```
 
 ```
-    create user YOUR-USERNAME  with password 'YOUR PASSWORD';
+    create user <username>  with password '<password>';
 ```
 
 ```
-    alter role YOUR-USERNAME createdb;
+    alter role <username> createdb;
 ```
 
 To exit psql prompt, type:
@@ -126,9 +129,9 @@ And then restart postgresql:
     $ sudo service postgresql restart
 ```
 
-Rehash rbenv to get access to new commands of the gems that were installed:
+source ~/.bash_profile to get access to rbenv and new commands of the gems that were installed:
 ```
-    $ rbenv rehash
+    $ source ~/.bash_profile
 ```
 Go to your rails application root and run bundle install:
 ```
@@ -138,30 +141,30 @@ Make sure your secret token is specified in your application's config/applicatio
 ```
     $ rake secret
 ```
-Then just add that to RAILS_APPLICATION_ROOT/config/application.yml:
+Then just add that to \<your/rails/application/root\>/config/application.yml:
 
 ```
-SECRET_TOKEN: YOUR_TOKEN_HERE;
+SECRET_TOKEN: <generated-token-here>
 ```
 
+If you are using ssl, now is the time to import your certificates or generate them. The following configurations assume they are stored in /etc/nginx/ssl/
 
-
-Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents:
+Create a file to /etc/nginx/sites-enabled/ with the name of the name of your application and add the following contents Replace leading whitespaces with tabs if nginx complains about them:
 
 ```
 server {
         listen 80;
-        server_name YOUR_DOMAIN_HERE;
-        root /PATH_TO_YOUR_RAILS_APP/public;
+        server_name <your-domain-here>;
+        root <your/rails/application/root>/public;
         passenger_enabled on;
 }
 
 # Comment this out if you are using SSL
 # server {
         # listen 443 ssl;
-        # server_name YOUR_DOMAIN_HERE;
+        # server_name <your-domain-here>;
         # passenger_enabled on;
-        # root /PATH_TO_YOUR_RAILS_APP/public;
+        # root <your/rails/application/root>/public;
         # ssl_certificate /etc/nginx/ssl/server.crt; # Replace with the path to your certificate
         # ssl_certificate_key /etc/nginx/ssl/server.key; # Replace with the path to your key
 # }
@@ -177,7 +180,7 @@ Then modify /etc/nginx/nginx.conf to only include that site configuration:
         ##
 
         include /etc/nginx/conf.d/*.conf;
-        include /etc/nginx/sites-enabled/THE_FILE_YOU_CREATED;
+        include /etc/nginx/sites-enabled/<the-server-conf-file-you-created>;
 }
 ```
 Go to your rails application root and run the following commands:
